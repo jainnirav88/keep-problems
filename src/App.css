@@ -1,0 +1,40 @@
+/* navbar styling */
+
+.navbar-nav {
+  flex-direction: row;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* problem-list styling */
+
+.main {
+  position: relative;
+}
+
+.btn-sm {
+  padding: .25rem .25rem;
+}
+
+.hover-btn {
+  position: absolute;
+  right: 3px;
+  top: 0px;
+  display: none;
+}
+
+.main:hover .hover-btn {
+  display: block;
+}
+
+.accordion-button, .accordion-body {
+  padding: 0.2rem 0.3rem;
+}
+
+/* add-problem styling */
+
+.row {
+  --bs-gutter-x: none;
+}
