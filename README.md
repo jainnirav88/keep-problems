@@ -10,11 +10,11 @@ A Browser extension which helps to save and keep track of problems from differen
 
 ### Add Problem
 
-- Save your problem with link, name, difficulty, tags, code and notes
+- Save problem with link, name, difficulty, tags, code and notes
 - If codeforces problem, then it will fetch name, difficulty and tags
 - For other platforms, it will fetch possible information
-- Add your code and notes in code and notes section
-- Manage your problems in different folders by giving appropriate folder name
+- Add code and notes in code and notes section
+- Manage problems in different folders by giving appropriate folder name
 
 ### Import/Export
 
