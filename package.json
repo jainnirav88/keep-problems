@@ -1,6 +1,6 @@
 {
-  "name": "main-project",
-  "version": "0.1.0",
+  "name": "keep-problems-mern-project",
+  "version": "0.1.1",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.12.0",
