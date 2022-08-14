@@ -1,5 +1,6 @@
 /*global chrome*/
 import React, { Component } from 'react';
+import axios from 'axios';
 import Problem from "./problem.component";
 import { Scrollbars } from 'react-custom-scrollbars';
 import { BsCaretDownFill, BsCaretUpFill } from "react-icons/bs";
@@ -49,32 +50,38 @@ export default class ProblemList extends Component {
   }
 
   componentDidMount() {
-    // Fetch the problems-list from localStorage
-    // Default value if key is not present
-    let keepProblems = {};
-    chrome.storage.local.get({ keepProblems: keepProblems }, res => {
-      // Create folders-list from problems-list.
-      let folders = new Set(['All']);
-      let problems = [];
+    console.log(`Backend server is running on port ${process.env.REACT_APP_PORT}`);
+    
+    // Fetch problems-list from server.
+    axios.get(`http://localhost:${process.env.REACT_APP_PORT}/problems`)
+      .then(res => {
+        console.log('Problem list from the server: ', res.data);
 
-      for (const [key, value] of Object.entries(res.keepProblems)) {
-        if (value.folder !== "") {
-          folders.add(value.folder)
-        }
+        // Create a folders-list from the problems-list.
+        let folders = new Set(['All']);
 
-        problems.push(res.keepProblems[key]);
-      }
+        res.data.forEach(problem => {
+          if (problem.folder !== "") {
+            folders.add(problem.folder)
+          }
+        });
 
-      this.setState({
-        problems: problems,
-        folderProblems: problems,
-        allProblems: problems,
-        folders: [...folders].sort(),
-        error: false
-      }, () => {
-        this.onClickSortByDate();
+        console.log("Folders : ", folders);
+
+        this.setState({
+          problems: res.data,
+          folderProblems: res.data,
+          allProblems: res.data,
+          folders: [...folders].sort(),
+          error: false
+        }, () => {
+          this.onClickSortByDate();
+        });
+      })
+      .catch(err => {
+        console.log('Error: ' + err);
+        this.setState({ error: true });
       });
-    });
   }
 
   onChangeFolder(folder) {
@@ -486,18 +493,14 @@ export default class ProblemList extends Component {
   }
 
   deleteProblem(id, folder) {
-    // Delete problem from localstorage
-    let keepProblems = {};
-    chrome.storage.local.get({ keepProblems: keepProblems }, res => {
+    console.log("Delete: ", id, folder);
 
-      delete res.keepProblems[id];
+    axios.delete(`http://localhost:${process.env.REACT_APP_PORT}/problems/` + id)
+      .then(res => {
+        console.log(res.data);
 
-      // Store problems in localStorage
-      chrome.storage.local.set({ keepProblems: res.keepProblems }, () => {
-        console.log("Problem removed from localStorage.")
-
-        /* If there is only 1 problem in folder then remove that folder from 
-        folders-list */
+        /* If there is only 1 problem in folder then remove that folder too from
+        the folders-list */
         if (this.state.problems.length <= 1) {
           this.setState({
             folders: this.state.folders.filter(currentFolder => {
@@ -524,8 +527,11 @@ export default class ProblemList extends Component {
             error: false
           });
         }
+      })
+      .catch(err => {
+        console.log('Error: ' + err)
+        this.setState({ error: true });
       });
-    });
   }
 
   problemList() {

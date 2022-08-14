@@ -1,7 +1,7 @@
 /* global chrome */
 import React, { Component } from 'react';
 import ReactTooltip from 'react-tooltip';
-import { v4 as uuidv4 } from 'uuid';
+import axios from 'axios';
 
 export default class Other extends Component {
   constructor(props) {
@@ -77,61 +77,63 @@ export default class Other extends Component {
   onSubmit(e) {
     e.preventDefault();
 
-    let keepProblems = {};
-    chrome.storage.local.get({ keepProblems: keepProblems }, res => {
-      try {
-        let date = JSON.stringify(new Date());
+    try {
+      this.state.fileProblems.forEach(currentProblem => {
+        let tags = new Set([...currentProblem.tags]);
 
-        this.state.fileProblems.forEach(currentProblem => {
-          let tags = new Set([...currentProblem.tags]);
-
-          if (this.state.tags !== '') {
-            this.state.tags.split(',').forEach(currentTag => {
-              if (currentTag.trim() !== "") {
-                tags.add(currentTag.trim());
-              }
-            });
-          }
-
-          let problem = {
-            _id: uuidv4(),
-            link: String(currentProblem.link),
-            name: String(currentProblem.name),
-            difficulty: Number(currentProblem.difficulty),
-            folder: this.state.folder !== '' ? this.state.folder : String(currentProblem.folder),
-            tags: [...tags],
-            code: String(currentProblem.code),
-            notes: String(currentProblem.notes),
-            date: date.substr(1, date.length - 2)
-          }
-
-          res.keepProblems[problem._id] = problem;
-        });
-
-        chrome.storage.local.set({ keepProblems: res.keepProblems }, () => {
-          console.log("New values are stored in the localStorage.");
-
-          e.target.reset();
-          this.setState({
-            fileProblems: [],
-            folder: '',
-            tags: '',
-            error: false,
-            success: true
+        if (this.state.tags !== '') {
+          this.state.tags.split(',').forEach(currentTag => {
+            if (currentTag.trim() !== "") {
+              tags.add(currentTag.trim());
+            }
           });
-        });
-      } catch (err) {
-        console.log('Error : ', err);
+        }
 
-        this.setState({
-          error: true
-        });
-      }
-    });
+        let problem = {
+          link: String(currentProblem.link),
+          name: String(currentProblem.name),
+          difficulty: Number(currentProblem.difficulty),
+          folder: this.state.folder !== '' ? this.state.folder : String(currentProblem.folder),
+          tags: [...tags],
+          code: String(currentProblem.code),
+          notes: String(currentProblem.notes),
+        }
+
+        axios.post(`http://localhost:${process.env.REACT_APP_PORT}/problems/add`, problem)
+          .then(res => {
+            console.log("Response : " + res.data);
+          })
+          .catch(err => {
+            console.log('Error: ' + err);
+          });
+      });
+
+      e.target.reset();
+      
+      this.setState({
+        fileProblems: [],
+        folder: '',
+        tags: '',
+        error: false,
+        success: true
+      });
+    } catch (err) {
+      console.log('Error : ', err);
+
+      this.setState({
+        error: true
+      });
+    }
   }
 
   clearAllProblems() {
-    chrome.storage.local.clear();
+    axios.delete(`http://localhost:${process.env.REACT_APP_PORT}/problems/`)
+      .then(res => {
+        console.log(res.data);
+      })
+      .catch(err => {
+        console.log('Error: ' + err)
+      });
   }
 
   render() {

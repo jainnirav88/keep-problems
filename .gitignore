@@ -1,6 +1,12 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+#
+src/utils.js
+src - 2
+screenshots/Code-screenshots
+
 # dependencies
+/backend/node_modules
 /node_modules
 /.pnp
 .pnp.js
@@ -17,7 +23,9 @@
 .env.development.local
 .env.test.local
 .env.production.local
-/other
+.env
+todo
+other.txt
 
 npm-debug.log*
 yarn-debug.log*

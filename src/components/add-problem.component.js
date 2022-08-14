@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import Scrollbars from 'react-custom-scrollbars';
 import ReactTooltip from 'react-tooltip';
-import { v4 as uuidv4 } from 'uuid';
 
 export default class AddProblem extends Component {
   constructor(props) {
@@ -109,29 +108,36 @@ export default class AddProblem extends Component {
       }
     });
 
-    // Fetch problems-list from localStorage
-    let keepProblems = {};
-    chrome.storage.local.get({ keepProblems: keepProblems }, res => {
+    // Fetch problems-list from server
+    axios.get(`http://localhost:${process.env.REACT_APP_PORT}/problems`)
+      .then(res => {
+        console.log('Problem list from the server: ', res.data);
 
-      // Create a folders-list from problems-list.
-      let folders = new Set();
-      let links = [];
+        // Create a folders-list from problems-list.
+        let folders = new Set();
+        let links = [];
 
-      for (const [key, value] of Object.entries(res.keepProblems)) {
-        if (value.folder !== "") {
-          folders.add(value.folder)
-        }
+        res.data.forEach(problem => {
+          if (problem.folder !== "") {
+            folders.add(problem.folder)
+          }
 
-        links.push(value.link);
-      }
+          links.push(problem.link);
+        });
 
-      this.setState({
-        folders: [...folders].sort(),
-        links: links,
-        error: false,
-        errorMessage: "Some Error Occured!!!"
+        console.log("Folders : ", folders);
+
+        this.setState({
+          folders: [...folders].sort(),
+          links: links,
+          error: false,
+          errorMessage: "Some Error Occured!!!"
+        });
+      })
+      .catch(err => {
+        console.log('Error: ' + err);
+        this.setState({ error: true });
       });
-    });
   }
 
   codeforces(link) {
@@ -264,10 +270,7 @@ export default class AddProblem extends Component {
       }
     });
 
-    let date = JSON.stringify(new Date());
-
     const problem = {
-      _id: uuidv4(),
       link: this.state.link,
       name: this.state.name !== "" ? this.state.name : this.state.link,
       difficulty: Number(this.state.difficulty),
@@ -275,18 +278,19 @@ export default class AddProblem extends Component {
       tags: [...tags],
       code: this.state.code,
       notes: this.state.notes,
-      date: date.substr(1, date.length - 2)
     };
 
-    let keepProblems = {};
-    chrome.storage.local.get({ keepProblems: keepProblems }, res => {
+    console.log("Saving: ", problem);
 
-      res.keepProblems[problem._id] = problem;
-
-      chrome.storage.local.set({ keepProblems: res.keepProblems }, () => {
+    axios.post(`http://localhost:${process.env.REACT_APP_PORT}/problems/add`, problem)
+      .then(res => {
+        console.log("Response : " + res.data);
         this.props.setPage('Home');
+      })
+      .catch(err => {
+        console.log('Error: ' + err);
+        this.setState({ error: true });
       });
-    });
   }
 
   folderList() {

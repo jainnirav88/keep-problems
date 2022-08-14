@@ -1,5 +1,6 @@
 /*global chrome*/
 import React, { Component } from 'react';
+import axios from 'axios';
 import Scrollbars from 'react-custom-scrollbars';
 import ReactTooltip from 'react-tooltip';
 
@@ -33,52 +34,54 @@ export default class AddProblem extends Component {
   }
 
   componentDidMount() {
-    // Fetch problems from localStorage.
-    let keepProblems = {};
-    chrome.storage.local.get({ keepProblems: keepProblems }, res => {
+    // Fetch problems-list from server
+    axios.get(`http://localhost:${process.env.REACT_APP_PORT}/problems`)
+      .then(res => {
+        console.log('Problem list from the server: ', res.data);
 
-      // Create a folders-list from problems-list.
-      let folders = new Set();
-      let links = [];
+        // Create folders-list from problems-list.
+        let folders = new Set();
 
-      for (const [key, value] of Object.entries(res.keepProblems)) {
-        if (value.folder !== "") {
-          folders.add(value.folder)
-        }
+        res.data.forEach(problem => {
+          if (problem.folder !== "") {
+            folders.add(problem.folder)
+          }
 
+          if (problem._id === this.props.match.params.id) {
+            console.log("tags-list:", problem.tags);
 
-        if (value._id === this.props._id) {
+            let tags = "";
+            problem.tags.forEach(currentTag => {
+              if (tags.length === 0) {
+                tags = currentTag;
+              } else {
+                tags += ", " + currentTag
+              }
+            });
 
-          let tags = "";
-          value.tags.forEach(currentTag => {
-            if (tags.length === 0) {
-              tags = currentTag;
-            } else {
-              tags += ", " + currentTag
-            }
-          });
+            this.setState({
+              link: problem.link,
+              name: problem.name,
+              difficulty: problem.difficulty,
+              folder: problem.folder,
+              tags: tags,
+              code: problem.code,
+              notes: problem.notes,
+              error: false
+            });
+          }
+        });
 
-          this.setState({
-            link: value.link,
-            name: value.name,
-            difficulty: value.difficulty,
-            folder: value.folder,
-            tags: tags,
-            code: value.code,
-            notes: value.notes,
-            error: false,
-            errorMessage: "Some Error Occured!!!"
-          });
-        }
-        else {
-          links.push(value.link);
-        }
-      }
+        console.log("Folders : ", folders);
 
-      this.setState({
-        folders: [...folders].sort()
+        this.setState({
+          folders: [...folders].sort()
+        });
+      })
+      .catch(err => {
+        console.log('Error: ' + err);
+        this.setState({ error: true });
       });
-    });
   }
 
   onChangeLink(e) {
@@ -142,10 +145,7 @@ export default class AddProblem extends Component {
       }
     });
 
-    let date = JSON.stringify(new Date());
-
     const problem = {
-      _id: this.props._id,
       link: this.state.link,
       name: this.state.name !== "" ? this.state.name : this.state.link,
       difficulty: Number(this.state.difficulty),
@@ -153,19 +153,18 @@ export default class AddProblem extends Component {
       tags: [...tags],
       code: this.state.code,
       notes: this.state.notes,
-      date: date.substr(1, date.length - 2)
     };
 
-    // Save problems in localStorage
-    let keepProblems = {};
-    chrome.storage.local.get({ keepProblems: keepProblems }, res => {
-
-      res.keepProblems[problem._id] = problem;
-
-      chrome.storage.local.set({ keepProblems: res.keepProblems }, () => {
+    // Save problems
+    axios.post(`http://localhost:${process.env.REACT_APP_PORT}/problems/update/` + this.props.match.params.id, problem)
+      .then(res => {
+        console.log("Response : " + res.data);
         this.props.setPage('Home');
+      })
+      .catch(err => {
+        console.log('Error: ' + err);
+        this.setState({ error: true });
       });
-    });
   }
 
   folderList() {

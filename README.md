@@ -2,9 +2,9 @@
 
 A Browser extension which helps to save and keep track of problems from different platforms(codeforces, codechef, atcoder, leetcode etc.)
 
-## Installation
+This is the replica of [Keep Problems](https://github.com/jainnirav88/keep-problems), in this problems are stored in mongoDB atlas instead of chrome local storage.
 
-- [Install it from Chrome Web Store](https://chrome.google.com/webstore/detail/keep-problems/bpcgbgiipbblkoajepkmlcdgafnhiamp)
+To use it, server needs to be running in the backend.
 
 ## Features
 
