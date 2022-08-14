@@ -1,4 +1,5 @@
 /*global chrome*/
+import React from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { BsPencilSquare, BsTrash } from 'react-icons/bs';
 

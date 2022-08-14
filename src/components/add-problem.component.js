@@ -109,7 +109,7 @@ export default class AddProblem extends Component {
     });
 
     // Fetch problems-list from server
-    axios.get(`http://localhost:${process.env.REACT_APP_PORT}/problems`)
+    axios.get(`http://localhost:${process.env.BACKEND_SERVER_PORT}/problems`)
       .then(res => {
         console.log('Problem list from the server: ', res.data);
 
@@ -282,7 +282,7 @@ export default class AddProblem extends Component {
 
     console.log("Saving: ", problem);
 
-    axios.post(`http://localhost:${process.env.REACT_APP_PORT}/problems/add`, problem)
+    axios.post(`http://localhost:${process.env.BACKEND_SERVER_PORT}/problems/add`, problem)
       .then(res => {
         console.log("Response : " + res.data);
         this.props.setPage('Home');

@@ -39,3 +39,7 @@ To use it, server needs to be running in the backend.
 ![](/screenshots/other-page-import-selected.png)
 
 - For more screenshots [see here](/screenshots)
+
+## License
+
+MIT

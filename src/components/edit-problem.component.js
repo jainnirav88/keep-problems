@@ -35,7 +35,7 @@ export default class AddProblem extends Component {
 
   componentDidMount() {
     // Fetch problems-list from server
-    axios.get(`http://localhost:${process.env.REACT_APP_PORT}/problems`)
+    axios.get(`http://localhost:${process.env.BACKEND_SERVER_PORT}/problems`)
       .then(res => {
         console.log('Problem list from the server: ', res.data);
 
@@ -156,7 +156,7 @@ export default class AddProblem extends Component {
     };
 
     // Save problems
-    axios.post(`http://localhost:${process.env.REACT_APP_PORT}/problems/update/` + this.props.match.params.id, problem)
+    axios.post(`http://localhost:${process.env.BACKEND_SERVER_PORT}/problems/update/` + this.props.match.params.id, problem)
       .then(res => {
         console.log("Response : " + res.data);
         this.props.setPage('Home');

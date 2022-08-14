@@ -99,7 +99,7 @@ export default class Other extends Component {
           notes: String(currentProblem.notes),
         }
 
-        axios.post(`http://localhost:${process.env.REACT_APP_PORT}/problems/add`, problem)
+        axios.post(`http://localhost:${process.env.BACKEND_SERVER_PORT}/problems/add`, problem)
           .then(res => {
             console.log("Response : " + res.data);
           })
@@ -127,7 +127,7 @@ export default class Other extends Component {
   }
 
   clearAllProblems() {
-    axios.delete(`http://localhost:${process.env.REACT_APP_PORT}/problems/`)
+    axios.delete(`http://localhost:${process.env.BACKEND_SERVER_PORT}/problems/`)
       .then(res => {
         console.log(res.data);
       })
